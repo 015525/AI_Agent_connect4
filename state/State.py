@@ -8,54 +8,43 @@
 # the 6 bits of the play the first play (row 1) is the first bit from the right
 
 class State:
-    '''
-        score_analysis = {
-                      "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-                      "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-                      "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0
-                      "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-                      }
-    '''
-
 
     def __init__(self, state):
         self.state = state
 
+
     def get_neighbours(self, playerNum):
         neighbours = []
-        for i in range(1,8):
+        for i in range(1, 8):
             if self.valid_play(i):
-                #print(self.update_state(i, playerNum))
                 neighbours.append(self.update_state(i, playerNum))
-                #print(neighbours[i-c].state)
-
 
         return neighbours
 
     def valid_play(self, colNum):
         MTELFR = 7
-        MTELFR = MTELFR << ((colNum -1)* 9)
+        MTELFR = MTELFR << ((colNum - 1) * 9)
         LastFilledRow = self.state & MTELFR
-        LastFilledRow = LastFilledRow >> ((colNum-1) * 9)
+        LastFilledRow = LastFilledRow >> ((colNum - 1) * 9)
         if LastFilledRow < 6:
             return True
         return False
 
     def update_state(self, colNum, playerNum):
         temp_state = State(self.state)
-        MTELFR = 7 # MTELFR = mask_to_extract_last_filled_row
-        MTECS = 63 # MTECS = mask_to_extract_column_state
+        MTELFR = 7  # MTELFR = mask_to_extract_last_filled_row
+        MTECS = 63  # MTECS = mask_to_extract_column_state
         play = 1
 
-        MTELFR = MTELFR << ((colNum-1)*9)
+        MTELFR = MTELFR << ((colNum - 1) * 9)
         LastFilledRow = temp_state.state & MTELFR
-        LastFilledRow = LastFilledRow >> ((colNum-1)*9)
+        LastFilledRow = LastFilledRow >> ((colNum - 1) * 9)
 
-        #if LastFilledRow == 6 : return None
+        # if LastFilledRow == 6 : return None
 
-        MTECS = MTECS << ((colNum-1)*9 + 3)
+        MTECS = MTECS << ((colNum - 1) * 9 + 3)
         colState = temp_state.state & MTECS
-        colState = colState >> ((colNum-1)*9 + 3)
+        colState = colState >> ((colNum - 1) * 9 + 3)
 
         play = play << (LastFilledRow)
         play = ~play if playerNum == 0 else play
@@ -67,14 +56,13 @@ class State:
 
         LastFilledRow += 1
 
-
         remainder = temp_state.state >> ((colNum * 9))
         remainder = remainder << ((colNum * 9))
 
         temp_state.state = temp_state.state | MTELFR
         temp_state.state = ~ temp_state.state
         LastFilledRow = ~ LastFilledRow
-        LastFilledRow = LastFilledRow << ((colNum-1) * 9)
+        LastFilledRow = LastFilledRow << ((colNum - 1) * 9)
         # LastFilledRow = LastFilledRow << (54-(colNum*9))
         # LastFilledRow = LastFilledRow >> (54-(colNum*9))
         temp_state.state = temp_state.state | LastFilledRow
@@ -85,8 +73,8 @@ class State:
         temp_state.state = ~ temp_state.state
         colState = ~ colState
         colState = colState << ((colNum - 1) * 9 + 3)
-        #colState = colState << (54-(colNum*9) + 3)
-        #colState = colState >> (54-(colNum*9) + 3)
+        # colState = colState << (54-(colNum*9) + 3)
+        # colState = colState >> (54-(colNum*9) + 3)
         temp_state.state = temp_state.state | colState
         temp_state.state = ~ temp_state.state
         # self.state = self.state & colState
@@ -102,17 +90,17 @@ class State:
         # get points generated from column
         pointMask = 15
         points_from_column = 0
-        if not player_num : colState = ~ colState
-        for i in range(LastFilledRow - 3):# max iterations is 3
+        if not player_num: colState = ~ colState
+        for i in range(LastFilledRow - 3):  # max iterations is 3
             temp = pointMask & colState
-            if temp == pointMask :
+            if temp == pointMask:
                 points_from_column += 1
             pointMask = pointMask << 1
 
         # get points generated from row
         points_from_row = 0
         counter = 0
-        for i in range(1,8):
+        for i in range(1, 8):
             LastFilledCRow, cState = self.get_last_col_and_state(i)
             if LastFilledCRow < LastFilledRow:
                 counter = 0
@@ -120,9 +108,9 @@ class State:
 
             c = self.get_play(cState, LastFilledRow)
             if c == player_num:
-                counter+=1
-            else :
-                counter=0
+                counter += 1
+            else:
+                counter = 0
 
             if counter == 4:
                 points_from_row += 1
@@ -131,10 +119,10 @@ class State:
         # get points generated from side row 1
         points_from_sideRow1 = 0
         counter = 0
-        if colNum <= LastFilledRow :
+        if colNum <= LastFilledRow:
             start = 1
             play_to_get = LastFilledRow - colNum + 1
-        else :
+        else:
             start = colNum - LastFilledRow + 1
             play_to_get = 1
 
@@ -165,11 +153,11 @@ class State:
         # get points generated from side row 2
         points_from_sideRow2 = 0
         counter = 0
-        if (7-colNum+1) <= LastFilledRow:
+        if (7 - colNum + 1) <= LastFilledRow:
             start = 7
-            play_to_get = LastFilledRow - (7-colNum+1) + 1
+            play_to_get = LastFilledRow - (7 - colNum + 1) + 1
         else:
-            start = (7-colNum+1) - LastFilledRow + 1
+            start = (7 - colNum + 1) - LastFilledRow + 1
             start = 7 - start + 1
             play_to_get = 1
 
@@ -197,14 +185,13 @@ class State:
             if play_to_get > 6:
                 break
 
-
         print(points_from_row)
         print(points_from_column)
         print(points_from_sideRow1)
         print(points_from_sideRow2)
         points_from_row -= score_analysis['r' + str(LastFilledRow)]
         points_from_column -= score_analysis['c' + str(colNum)]
-        if sideRow1row < 4 :
+        if sideRow1row < 4:
             points_from_sideRow1 -= score_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
         if sideRow2row < 4:
             points_from_sideRow2 -= score_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
@@ -220,11 +207,6 @@ class State:
 
         return score_analysis, score
 
-
-
-
-
-
     def get_last_col_and_state(self, colNum):
         MTELFR = 7  # MTELFR = mask_to_extract_last_filled_row
         MTECS = 63  # MTECS = mask_to_extract_column_state
@@ -238,10 +220,6 @@ class State:
         colState = colState >> ((colNum - 1) * 9 + 3)
 
         return LastFilledRow, colState
-
-
-    def estimate_state(self):
-        pass
 
     def get_play(self, cState, LastFilledRow):
         MTELFR = 1  # MTELFR = mask_to_extract_last_filled_row
@@ -269,7 +247,7 @@ class State:
             temp = pointMask & colState
             if temp == pointMask:
                 points_from_column += 1
-            else :
+            else:
                 points_from_column = 0
                 break
             pointMask = pointMask << 1
@@ -290,14 +268,13 @@ class State:
                 points_from_row = counter
             else:
                 opponent_counter += 1
-                #if i > 4 and counter >= 3 and counter != i :
-                if i-opponent_counter > 4 and counter > 0:
+                # if i > 4 and counter >= 3 and counter != i :
+                if i - opponent_counter > 4 and counter > 0:
                     points_from_row = counter
                     break
-                else :
+                else:
                     points_from_row = 0
                 counter = 0
-
 
             '''
             if counter:
@@ -331,11 +308,11 @@ class State:
                 points_from_row = counter
             else:
                 opponent_counter += 1
-                #if i > 4 and counter >= 3 and counter != i :
-                if i-opponent_counter > 4 and counter > 0:
+                # if i > 4 and counter >= 3 and counter != i :
+                if i - opponent_counter > 4 and counter > 0:
                     points_from_row = counter
                     break
-                else :
+                else:
                     points_from_row = 0
                 counter = 0
 
@@ -403,18 +380,18 @@ class State:
         return heurestic_analysis, heurestic_score
 
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     s = State(318454006676478)
     score_analysis = {
-                      "r1": 3, "r2": 2, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-                      "c1": 3, "c2": 2, "c3": 1, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-                      "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
-                      "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-                      }
+        "r1": 3, "r2": 2, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+        "c1": 3, "c2": 2, "c3": 1, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
+        "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
+        "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+    }
     score = 11
     colNum = 4
     playerNum = 1
-    score_analysis , score = s.get_new_score(score_analysis, score, colNum, 1)
+    score_analysis, score = s.get_new_score(score_analysis, score, colNum, 1)
     print(score_analysis)
     print(score)
     '''
@@ -424,55 +401,52 @@ if __name__ == "__main__" :
     mask << 1
     print(mask)
     '''
-    #print(30 & 31)
-    #req_s = s.update_state(7, 1)
-    #print(req_s.state)
-    #list_of_neighbours = s.get_neighbours(1)
-    #print("===============================")
-    #for i in (list_of_neighbours):
+    # print(30 & 31)
+    # req_s = s.update_state(7, 1)
+    # print(req_s.state)
+    # list_of_neighbours = s.get_neighbours(1)
+    # print("===============================")
+    # for i in (list_of_neighbours):
     #    print(i.state)
 
-#[12898978266014996, 12898978266048208, 12898978286986448, 12903513751479504, 15185962451789008]
-#current state 143800
+# [12898978266014996, 12898978266048208, 12898978286986448, 12903513751479504, 15185962451789008]
+# current state 143800
 # player num is 0
 # col num is 2
 # required output is 176568
 
-#current state 143800
+# current state 143800
 # player num is 1
 # col num is 2
 # required output is 177592
 
-#current state 12898978266014928
+# current state 12898978266014928
 # player num is 0
 # col num is 6
 # required output is 15150778079700176
 
-#current state 12898978266014928
+# current state 12898978266014928
 # player num is 1
 # col num is 6
 # required output is 15185962451789008
 
-#current state 12898978266014928
+# current state 12898978266014928
 # player num is 0
 # col num is 2
 # required output is 12898978266047696
 
-#current state 12898978266014928
+# current state 12898978266014928
 # player num is 1
 # col num is 2
 # required output is 12898978266048208
 
-#18014398509481984 # 1 with 54 zero after it in binary
-#9007199254740992  # 1 with 53 zero after it in binary
+# 18014398509481984 # 1 with 54 zero after it in binary
+# 9007199254740992  # 1 with 53 zero after it in binary
 
-#new form
-#000010011010011101000001001101101110000111100011101101
-#679293331470573
-#colnum 1 player 1
-#679293331470830
+# new form
+# 000010011010011101000001001101101110000111100011101101
+# 679293331470573
+# colnum 1 player 1
+# 679293331470830
 
-#8524845814331
-
-
-
+# 8524845814331
