@@ -253,8 +253,9 @@ class State:
         return c
 
     def get_total_heurestic(self, score1, score2, heurestic_analysis, heurestic_score, colNum):
-        total_heutrestic = score1 * self.get_heutrestic(heurestic_analysis, heurestic_score, colNum, 1) - \
-                           score2 * self.get_heutrestic(heurestic_analysis, heurestic_score,colNum, 0)
+        heurestic_analysis1, heurestic_score1 = self.get_heutrestic(heurestic_analysis, heurestic_score, colNum, 1)
+        heurestic_analysis2, heurestic_score2 = self.get_heutrestic(heurestic_analysis, heurestic_score, colNum, 0)
+        total_heutrestic = score1 * heurestic_score1 - score2 * heurestic_score2
         return total_heutrestic
 
     def get_heutrestic(self, heurestic_analysis, heurestic_score, colNum, player_num):
