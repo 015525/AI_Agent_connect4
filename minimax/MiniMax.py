@@ -14,14 +14,13 @@ class MiniMax:
 
     def _minimax(self, state, depth, MaximizingPlayer):
         if depth == 0 or state.is_terminal():
-            return state.get_heutrestic()
+            return state.get_total_heuristic()
 
         if MaximizingPlayer:
             value = sys.float_info.min
             neighbours = state.get_neighbours(state.computer)
             for child in neighbours:
-                # ????????????????????
-                self.tree[child] = state.state
+                child.parent = state
                 max = self._minimax(child, depth - 1, False)
                 if max > value:
                     value = max
@@ -31,8 +30,7 @@ class MiniMax:
             value = sys.float_info.max
             neighbours = state.get_neighbours(state.human)
             for child in neighbours:
-                # ???????????????????? 
-                self.tree[child] = state.state
+                child.parent = state
                 min = self._minimax(child, depth - 1, True)
                 if min < value:
                     value = min

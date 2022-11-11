@@ -47,6 +47,7 @@ def print_state(state):
 class State:
     computer = 0
     human = 1
+    last_human_col = -1
     score_analysis = {
         "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
         "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
@@ -55,13 +56,26 @@ class State:
     }
 
     def __init__(self, state):
+        self.parent = None
         self.state = state
+        self.score = 0
+        self.child = None
+        self.heuristic_analysis = {
+            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
+            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+        self.heuristic_score = 0
+        self.col_num = -1
 
     def get_neighbours(self, player_num):
         neighbours = []
         for i in range(1, 8):
             if self.valid_play(i):
-                neighbours.append(self.update_state(i, player_num))
+                new_state = self.update_state(i, player_num)
+                new_state.col_num = i
+                neighbours.append(new_state)
 
         return neighbours
 
@@ -91,7 +105,7 @@ class State:
         colState = temp_state.state & MTECS
         colState = colState >> ((col_num - 1) * 9 + 3)
 
-        play = play << (LastFilledRow)
+        play = play << LastFilledRow
         play = ~play if playerNum == 0 else play
 
         if playerNum == 0:
@@ -101,8 +115,8 @@ class State:
 
         LastFilledRow += 1
 
-        remainder = temp_state.state >> ((col_num * 9))
-        remainder = remainder << ((col_num * 9))
+        remainder = temp_state.state >> (col_num * 9)
+        remainder = remainder << (col_num * 9)
 
         temp_state.state = temp_state.state | MTELFR
         temp_state.state = ~ temp_state.state
@@ -129,9 +143,15 @@ class State:
         return temp_state
 
     # this is called after the new state is updated
-    def get_new_score(self, score, col_num, player_num):
-        LastFilledRow, colState = self.get_last_col_and_state(col_num)
+    def get_new_score(self, col_num, player_num):
+        # ????????????????????????????????
+        if self.parent is None:
+            score = 0
+        else:
+            score = self.parent.score
+        # ????????????????????????????????
 
+        LastFilledRow, colState = self.get_last_col_and_state(col_num)
         # get points generated from column
         pointMask = 15
         points_from_column = 0
@@ -230,10 +250,10 @@ class State:
             if play_to_get > 6:
                 break
 
-        print(points_from_row)
-        print(points_from_column)
-        print(points_from_sideRow1)
-        print(points_from_sideRow2)
+        # print(points_from_row)
+        # print(points_from_column)
+        # print(points_from_sideRow1)
+        # print(points_from_sideRow2)
         points_from_row -= State.score_analysis['r' + str(LastFilledRow)]
         points_from_column -= State.score_analysis['c' + str(col_num)]
         if sideRow1row < 4:
@@ -275,17 +295,28 @@ class State:
 
         return c
 
-    def get_total_heuristic(self, score1, score2, heuristic_analysis, heuristic_score, col_num):
-        heuristic_analysis1, heuristic_score1 = self.get_heuristic(heuristic_analysis, heuristic_score, col_num,
+    def get_total_heuristic(self):
+        # ???? not sure??????????????????????????????????
+        score1 = self.get_new_score(self.col_num, State.computer)
+        score2 = self.get_new_score(self.col_num, State.human)
+        # ???? not sure??????????????????????????????????
+
+        heuristic_analysis1, heuristic_score1 = self.get_heuristic(self.col_num,
                                                                    State.computer)
-        heuristic_analysis2, heuristic_score2 = self.get_heuristic(heuristic_analysis, heuristic_score, col_num,
+        heuristic_analysis2, heuristic_score2 = self.get_heuristic(self.col_num,
                                                                    State.human)
         total_heuristic = score1 * heuristic_score1 - score2 * heuristic_score2
         return total_heuristic
 
-    def get_heuristic(self, heuristic_analysis, heuristic_score, col_num, player_num):
-        LastFilledRow, colState = self.get_last_col_and_state(col_num)
+    def get_heuristic(self, col_num, player_num):
+        if self.parent is None:
+            temp_heuristic_analysis = self.heuristic_analysis
+            heuristic_score = 0
+        else:
+            temp_heuristic_analysis = self.parent.heuristic_analysis
+            heuristic_score = self.parent.heuristic_score
 
+        LastFilledRow, colState = self.get_last_col_and_state(col_num)
         # get points generated from column
         pointMask = 1
         points_from_column = 0
@@ -404,27 +435,29 @@ class State:
             if play_to_get > 6:
                 break
 
-        print(points_from_row)
-        print(points_from_column)
-        print(points_from_sideRow1)
-        print(points_from_sideRow2)
-        points_from_row -= heuristic_analysis['r' + str(LastFilledRow)]
-        points_from_column -= heuristic_analysis['c' + str(col_num)]
+        # print(points_from_row)
+        # print(points_from_column)
+        # print(points_from_sideRow1)
+        # print(points_from_sideRow2)
+        points_from_row -= temp_heuristic_analysis['r' + str(LastFilledRow)]
+        points_from_column -= temp_heuristic_analysis['c' + str(col_num)]
         if sideRow1row < 4:
-            points_from_sideRow1 -= heuristic_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
+            points_from_sideRow1 -= temp_heuristic_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
         if sideRow2row < 4:
-            points_from_sideRow2 -= heuristic_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
+            points_from_sideRow2 -= temp_heuristic_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
 
         heuristic_score += points_from_row + points_from_column + points_from_sideRow2 + points_from_sideRow1
 
-        heuristic_analysis['r' + str(LastFilledRow)] += points_from_row
-        heuristic_analysis['c' + str(col_num)] += points_from_column
+        temp_heuristic_analysis['r' + str(LastFilledRow)] += points_from_row
+        temp_heuristic_analysis['c' + str(col_num)] += points_from_column
         if sideRow1row < 4:
-            heuristic_analysis['rc' + str(sideRow1row) + str(sideRow1col)] += points_from_sideRow1
+            temp_heuristic_analysis['rc' + str(sideRow1row) + str(sideRow1col)] += points_from_sideRow1
         if sideRow2row < 4:
-            heuristic_analysis['rc' + str(sideRow2row) + str(sideRow2col)] += points_from_sideRow2
+            temp_heuristic_analysis['rc' + str(sideRow2row) + str(sideRow2col)] += points_from_sideRow2
 
-        return heuristic_analysis, heuristic_score
+        self.heuristic_analysis = temp_heuristic_analysis
+        self.heuristic_score = heuristic_score
+        return temp_heuristic_analysis, heuristic_score
 
     def is_terminal(self):
         temp_state = self.state
@@ -448,9 +481,9 @@ if __name__ == "__main__":
     #     "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
     #     "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
     # }
-    sc = s.get_new_score(11, 4, 1)
-    print(State.score_analysis)
-    print(sc)
+    # sc = s.get_new_score(11, 4, 1)
+    # print(State.score_analysis)
+    # print(sc)
     '''
     s = State(679293331470573)
     print(s.state)
