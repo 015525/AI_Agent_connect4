@@ -6,12 +6,47 @@
 # each column is represented by 9 bits 3 for last filled row in the column 6 for the plays in the column
 # the 3 bits of the last filled row in the column also are at the right of the 9 bits
 # the 6 bits of the play the first play (row 1) is the first bit from the right
+import numpy as np
+
+
+def print_state(state):
+    temp_state = State(state)
+    listoflists = []
+    for i in range(1, 8):
+        alist = []
+        MTELFR = 7  # MTELFR = mask_to_extract_last_filled_row
+        MTECS = 63  # MTECS =  mask_to_extract_column_state
+        MTELFR = MTELFR << ((i - 1) * 9)
+        LastFilledRow = temp_state.state & MTELFR
+        LastFilledRow = LastFilledRow >> ((i - 1) * 9)
+        MTECS = MTECS << ((i - 1) * 9 + 3)
+        colState = temp_state.state & MTECS
+        colState = colState >> ((i - 1) * 9 + 3)
+
+        for j in range(LastFilledRow):
+            bit = colState & 1
+            colState >>= 1
+            alist.append(bit)
+
+        for j in range(LastFilledRow, 6):
+            alist.append("*")
+
+        listoflists.append(alist)
+
+    board = []
+    for j in range(5, -1, -1):
+        row = []
+        for i in range(6, -1, -1):
+            row.append(listoflists[i][j])
+        board.append(row)
+
+    print(np.matrix(board))
+
 
 class State:
 
     def __init__(self, state):
         self.state = state
-
 
     def get_neighbours(self, playerNum):
         neighbours = []
@@ -381,19 +416,20 @@ class State:
 
 
 if __name__ == "__main__":
-    s = State(318454006676478)
-    score_analysis = {
-        "r1": 3, "r2": 2, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-        "c1": 3, "c2": 2, "c3": 1, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-        "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
-        "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-    }
-    score = 11
-    colNum = 4
-    playerNum = 1
-    score_analysis, score = s.get_new_score(score_analysis, score, colNum, 1)
-    print(score_analysis)
-    print(score)
+    s = State(6521938056733407885)
+    print_state()
+    # score_analysis = {
+    #     "r1": 3, "r2": 2, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+    #     "c1": 3, "c2": 2, "c3": 1, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
+    #     "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
+    #     "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+    # }
+    # score = 11
+    # colNum = 4
+    # playerNum = 1
+    # score_analysis, score = s.get_new_score(score_analysis, score, colNum, 1)
+    # print(score_analysis)
+    # print(score)
     '''
     s = State(679293331470573)
     print(s.state)
