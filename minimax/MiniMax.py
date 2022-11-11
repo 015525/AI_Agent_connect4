@@ -1,5 +1,7 @@
 import sys
 
+from state.State import print_state
+
 
 class MiniMax:
 
@@ -9,31 +11,36 @@ class MiniMax:
         self.tree = {}
 
     def get_next_state(self, current_state):
-        self._minimax(current_state, self.max_depth, True)
-        return self.next_state
+        # ????????????????????????????
+        val, next_state = self._minimax(current_state, self.max_depth, True)
+        next_state.heuristic_score = val
+        # ????????????????????????????
+        return next_state
 
     def _minimax(self, state, depth, MaximizingPlayer):
         if depth == 0 or state.is_terminal():
-            return state.get_total_heuristic()
+            return state.get_total_heuristic(), state
 
         if MaximizingPlayer:
             value = sys.float_info.min
             neighbours = state.get_neighbours(state.computer)
             for child in neighbours:
                 child.parent = state
-                max = self._minimax(child, depth - 1, False)
+                max, temp = self._minimax(child, depth - 1, False)
+                next_state = child
                 if max > value:
                     value = max
-                    self.next_state = child
-            return value
+                    next_state = child
+            return value, next_state
         else:
             value = sys.float_info.max
             neighbours = state.get_neighbours(state.human)
             for child in neighbours:
                 child.parent = state
-                min = self._minimax(child, depth - 1, True)
+                min, temp = self._minimax(child, depth - 1, True)
+                next_state = child
                 if min < value:
                     value = min
-                    self.next_state = child
+                    next_state = child
 
-            return value
+            return value, next_state

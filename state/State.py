@@ -47,7 +47,6 @@ def print_state(state):
 class State:
     computer = 0
     human = 1
-    last_human_col = -1
     score_analysis = {
         "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
         "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
@@ -58,7 +57,8 @@ class State:
     def __init__(self, state):
         self.parent = None
         self.state = state
-        self.score = 0
+        self.computer_score = 0
+        self.human_score = 0
         self.child = None
         self.heuristic_analysis = {
             "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
@@ -148,7 +148,10 @@ class State:
         if self.parent is None:
             score = 0
         else:
-            score = self.parent.score
+            if player_num == State.computer:
+                score = self.parent.computer_score
+            else:
+                score = self.parent.human_score
         # ????????????????????????????????
 
         LastFilledRow, colState = self.get_last_col_and_state(col_num)
@@ -297,6 +300,7 @@ class State:
 
     def get_total_heuristic(self):
         # ???? not sure??????????????????????????????????
+        # And computer_score and human_score can be used instead ???????
         score1 = self.get_new_score(self.col_num, State.computer)
         score2 = self.get_new_score(self.col_num, State.human)
         # ???? not sure??????????????????????????????????
