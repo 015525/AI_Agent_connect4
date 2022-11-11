@@ -1,17 +1,22 @@
+import sys
 
 
 class MiniMax:
 
-    function  minimax( node, depth, maximizingPlayer ) is
-    if depth = 0 or node is a terminal node then
-    return the heuristic value of node
-    if maximizingPlayer then
-    value := −∞
-    for each child of node do
-    value := max( value, minimax( child, depth − 1, FALSE ) )
-    return value
-    else (* minimizing player *)
-    value := +∞
-    for each child of node do
-    value := min( value, minimax( child, depth − 1, TRUE ) )
-    return value
+    def minimax(self, state, depth, MaximizingPlayer):
+        if depth == 0 or state.is_terminal():
+            return state.get_heutrestic()
+
+        if MaximizingPlayer:
+            value = sys.float_info.min
+            neighbours = state.get_neighbours()
+            for child in neighbours:
+                value = max(value, self.minimax(child, depth - 1, False))
+            return value
+        else:
+            value = sys.float_info.max
+            neighbours = state.get_neighbours()
+            for child in neighbours:
+                value = min(value, self.minimax(child, depth - 1, True))
+
+        return value
