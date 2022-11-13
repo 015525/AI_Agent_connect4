@@ -197,8 +197,12 @@ class State:
 
         sideRow1row = play_to_get
         sideRow1col = start
+        sideRow1rowAllowed = True
 
         for i in range(start, 8):
+            if 8-start < 4 :
+                sideRow1rowAllowed = False
+                break
             LastFilledCRow, cState = self.get_last_col_and_state(i)
 
             if LastFilledCRow < play_to_get:
@@ -232,8 +236,12 @@ class State:
 
         sideRow2row = play_to_get
         sideRow2col = start
+        sideRow2rowAllowed = True
 
         for i in range(start, 0, -1):
+            if start-0 < 4 :
+                sideRow2rowAllowed = False
+                break
             LastFilledCRow, cState = self.get_last_col_and_state(i)
 
             if LastFilledCRow < play_to_get:
@@ -260,18 +268,18 @@ class State:
         # print(points_from_sideRow2)
         points_from_row -= State.score_analysis['r' + str(LastFilledRow)]
         points_from_column -= State.score_analysis['c' + str(col_num)]
-        if sideRow1row < 4:
+        if sideRow1row < 4 and sideRow1rowAllowed:
             points_from_sideRow1 -= State.score_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
-        if sideRow2row < 4:
+        if sideRow2row < 4 and sideRow2rowAllowed:
             points_from_sideRow2 -= State.score_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
 
         score += points_from_row + points_from_column + points_from_sideRow2 + points_from_sideRow1
 
         State.score_analysis['r' + str(LastFilledRow)] += points_from_row
         State.score_analysis['c' + str(col_num)] += points_from_column
-        if sideRow1row < 4:
+        if sideRow1row < 4 and sideRow1rowAllowed:
             State.score_analysis['rc' + str(sideRow1row) + str(sideRow1col)] += points_from_sideRow1
-        if sideRow2row < 4:
+        if sideRow2row < 4 and sideRow2rowAllowed:
             State.score_analysis['rc' + str(sideRow2row) + str(sideRow2col)] += points_from_sideRow2
 
         return score
