@@ -367,7 +367,7 @@ class State:
         for i in range(1, 8):
             LastFilledCRow, cState = self.get_last_col_and_state(i)
             if LastFilledCRow < LastFilledRow:
-                #print("last filled row is ", LastFilledRow)
+                #print("last filled row is ", LastFilledCRow)
                 continue
 
             c = self.get_play(cState, LastFilledRow)
@@ -377,13 +377,16 @@ class State:
             else:
                 # if i > 4 and counter >= 3 and counter != i :
                 if i - opponent_counter > 4 and counter > 0:
+                    print("second i now is ", i)
                     points_from_row = counter
                     break
                 else:
-                    #print("i now is " , i)
+                    print("i now is " , i)
                     points_from_row = 0
                 opponent_counter += 1
                 counter = 0
+                if 8-i < 4:
+                    break
 
             '''
             if counter:
@@ -404,8 +407,12 @@ class State:
 
         sideRow1row = play_to_get
         sideRow1col = start
+        sideRow1rowAllowed = True
 
         for i in range(start, 8):
+            if 8-start < 4 :
+                sideRow1rowAllowed = False
+                break
             LastFilledCRow, cState = self.get_last_col_and_state(i)
 
             if LastFilledCRow < play_to_get:
@@ -429,6 +436,8 @@ class State:
 
                 opponent_counter += 1
                 counter = 0
+                if 8-i < 4 :
+                    break
 
             if play_to_get > 6:
                 break
@@ -446,8 +455,12 @@ class State:
 
         sideRow2row = play_to_get
         sideRow2col = start
+        sideRow2rowAllowed = True
 
         for i in range(start, 0, -1):
+            if start-0 < 4 :
+                sideRow2rowAllowed = False
+                break
             LastFilledCRow, cState = self.get_last_col_and_state(i)
 
             if LastFilledCRow < play_to_get:
@@ -469,6 +482,8 @@ class State:
 
                 opponent_counter += 1
                 counter = 0
+                if i< 4 :
+                    break
 
             if play_to_get > 6:
                 break
@@ -479,18 +494,22 @@ class State:
         print(points_from_sideRow2)
         points_from_row -= temp_heuristic_analysis['r' + str(LastFilledRow)]
         points_from_column -= temp_heuristic_analysis['c' + str(col_num)]
-        if sideRow1row < 4:
+
+        print("side row 1 row is ", sideRow1row, "side row 1 col", sideRow1col)
+        print("side row 2 row is ", sideRow2row, "side row 2 col", sideRow2col)
+
+        if sideRow1row < 4 and sideRow1rowAllowed:
             points_from_sideRow1 -= temp_heuristic_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
-        if sideRow2row < 4:
+        if sideRow2row < 4 and sideRow2rowAllowed:
             points_from_sideRow2 -= temp_heuristic_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
 
         heuristic_score += (points_from_row + points_from_column + points_from_sideRow2 + points_from_sideRow1)
 
         temp_heuristic_analysis['r' + str(LastFilledRow)] += points_from_row
         temp_heuristic_analysis['c' + str(col_num)] += points_from_column
-        if sideRow1row < 4:
+        if sideRow1row < 4 and sideRow1rowAllowed:
             temp_heuristic_analysis['rc' + str(sideRow1row) + str(sideRow1col)] += points_from_sideRow1
-        if sideRow2row < 4:
+        if sideRow2row < 4 and sideRow2rowAllowed:
             temp_heuristic_analysis['rc' + str(sideRow2row) + str(sideRow2col)] += points_from_sideRow2
 
         self.heuristic_analysis = temp_heuristic_analysis
@@ -512,24 +531,25 @@ class State:
 
 
 if __name__ == "__main__":
-    s = State(162201811965711361)
-    s.col_num = 3
+    s = State(162165389432717312)
+    s.col_num = 5
 
     heuristic_analysis_human = {
-        "r1": 3, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-        "c1": 0, "c2": 0, "c3": 0, "c4": 1, "c5": 0, "c6": 0, "c7": 1,
-        "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 1, "rc15": 1, 'rc14': 1,
-        "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 1, "rc13": 0
+        "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+        "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 1,
+        "rc37": 0, "rc27": 0, "rc17": 1, "rc16": 0, "rc15": 0, 'rc14': 0,
+        "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
     }
 
     heuristic_analysis_computer = {
-        "r1": 0, "r2": 1, "r3": 1, "r4": 0, "r5": 0, "r6": 0,
-        "c1": 1, "c2": 1, "c3": 0, "c4": 0, "c5": 1, "c6": 2, "c7": 1,
-        "rc37": 0, "rc27": 0, "rc17": 2, "rc16": 0, "rc15": 0, 'rc14': 0,
-        "rc31": 0, "rc21": 0, "rc11": 2, "rc12": 1, "rc13": 1
+        "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+        "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 1, "c7": 0,
+        "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 1, "rc15": 0, 'rc14': 0,
+        "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
     }
 
-    heurestic_score  = s.get_total_heuristic(1,0, heuristic_analysis_human, heuristic_analysis_computer, 9, 12)
+
+    heurestic_score  = s.get_total_heuristic(0,0, heuristic_analysis_human, heuristic_analysis_computer, 2, 3)
     #print(new_heurestic_analysis)
     print(heurestic_score)
     #  score_analysis = {
@@ -599,6 +619,8 @@ if __name__ == "__main__":
 # 8524845814331
 
 #heurestic test
+#positive heurestic means for human negative means for computer
+
 '''
 heuristic_analysis_human = {
             "r1": 3, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
@@ -643,4 +665,101 @@ in binary
 1001000000010000011011000001001000001001000001010000000001
 
 play was for human (3) in col 3
+'''
+
+'''
+heuristic_analysis_human = {
+            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 1,
+            "rc37": 0, "rc27": 0, "rc17": 1, "rc16": 0, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+
+#expected new human heurestic      
+heuristic_analysis_human = {
+            "r1": 1, "r2": 1, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 2,
+            "rc37": 0, "rc27": 1, "rc17": 1, "rc16": 0, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+
+heuristic_analysis_computer = {
+            "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 1, "c7": 0,
+            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 1, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+
+#expected new computer heurestic      
+heuristic_analysis_computer = {
+            "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 1, "c7": 0,
+            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 1, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+
+old heurestic : 0
+expected new heurestic : 1.5
+
+old score_human : 0 old score_computer : 0
+new score_human : 0 new score_computer : 0
+
+old heurestic_human : 3 old heurestic_computer : 3
+new heurestic_human : 6 new heurestic_computer : 3
+
+new state 
+468409545618620416
+in binary 
+11010000000001000000000000000000000000000000000000000000000
+
+play was for human (1) in col 7
+'''
+
+'''
+heuristic_analysis_human = {
+            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 1,
+            "rc37": 0, "rc27": 0, "rc17": 1, "rc16": 0, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+
+#expected new human heurestic      
+heuristic_analysis_human = {
+            "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 1, "c6": 0, "c7": 1,
+            "rc37": 0, "rc27": 0, "rc17": 1, "rc16": 0, "rc15": 1, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+
+heuristic_analysis_computer = {
+            "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 1, "c7": 0,
+            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 1, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+
+#expected new computer heurestic      
+heuristic_analysis_computer = {
+            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 1, "c7": 0,
+            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 1, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+
+old heurestic : -0.5
+expected new heurestic : 1.5
+
+old score_human : 0 old score_computer : 0
+new score_human : 0 new score_computer : 0
+
+old heurestic_human : 2 old heurestic_computer : 3
+new heurestic_human : 5 new heurestic_computer : 2
+
+
+new state 
+162165389432717312
+in binary 
+1001000000001000001001000000000000000000000000000000000000
+
+play was for human (1) in col 5
 '''
