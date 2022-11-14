@@ -273,11 +273,11 @@ class State:
         # print(points_from_sideRow1)
         # print(points_from_sideRow2)
         points_from_row -= self.score_analysis['r' + str(LastFilledRow)]
-        points_from_column -=  self.score_analysis['c' + str(col_num)]
+        points_from_column -= self.score_analysis['c' + str(col_num)]
         if sideRow1row < 4 and sideRow1rowAllowed:
-            points_from_sideRow1 -=  self.score_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
+            points_from_sideRow1 -= self.score_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
         if sideRow2row < 4 and sideRow2rowAllowed:
-            points_from_sideRow2 -=  self.score_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
+            points_from_sideRow2 -= self.score_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
 
         score += points_from_row + points_from_column + points_from_sideRow2 + points_from_sideRow1
 
@@ -343,9 +343,10 @@ class State:
             score1 = 1
             score2 = 1
 
-        print(score1)
-        print(score2)
-        print_state(self)
+        # print(score1)
+        # print(score2)
+        # print_state(self)
+        # print(self.state)
         score1Rat = score1 / (score2 + score1)
         score2Rat = score2 / (score2 + score1)
 
@@ -362,9 +363,9 @@ class State:
         self.heuristic_score_computer = heuristic_score2
 
         total_heuristic = score1Rat * heuristic_score1 - score2Rat * heuristic_score2
-        print("********")
-        print(self.score_analysis)
-        return -total_heuristic
+        # print("********")
+        # print(self.score_analysis)
+        return total_heuristic
 
     def get_heuristic(self, col_num, player_num, heuristic_analysis, heuristic_score):
         temp_heuristic_analysis = heuristic_analysis

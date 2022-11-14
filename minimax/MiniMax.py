@@ -12,10 +12,10 @@ class MiniMax:
 
     def get_next_state(self, current_state):
         # ????????????????????????????
-        val, col = self._minimax(current_state, self.max_depth, True)
-        next_state = current_state
-        next_state = next_state.update_state(col, State.computer)
-        next_state.col_num = col
+        val, next_state = self._minimax(current_state, self.max_depth, True)
+        # next_state = current_state
+        # next_state = next_state.update_state(col, State.computer)
+        # next_state.col_num = col
         print("****human****")
         print(next_state.heuristic_analysis_human)
         print("****computer***")
@@ -29,27 +29,28 @@ class MiniMax:
 
         if MaximizingPlayer:
             value = float('-inf')
-            col = state.get_valid_col()
+            # col = state.get_valid_col()
+            ss = state
             neighbours = state.get_neighbours(state.computer)
             for child in neighbours:
                 child.parent = state
-
                 child.get_total_heuristic()
                 max = self._minimax(child, depth - 1, False)[0]
                 if max > value:
                     value = max
-                    col = child.col_num
-            return value, col
+                    ss = child
+            return value, ss
 
         else:
             value = sys.float_info.max
-            col = state.get_valid_col()
+            # col = state.get_valid_col()
             neighbours = state.get_neighbours(state.human)
+            ss = state
             for child in neighbours:
                 child.parent = state
                 child.get_total_heuristic()
                 min = self._minimax(child, depth - 1, True)[0]
                 if min < value:
                     value = min
-                    col = child.col_num
-            return value, col
+                    ss = child
+            return value, ss
