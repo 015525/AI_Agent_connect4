@@ -59,14 +59,20 @@ class State:
         self.state = state
         self.computer_score = 0
         self.human_score = 0
-        self.child = None
-        self.heuristic_analysis = {
+        self.heuristic_analysis_human = {
             "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
             "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
             "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
         }
-        self.heuristic_score = 0
+        self.heuristic_analysis_computer = {
+            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
+            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+        self.heuristic_score_computer = 0
+        self.heuristic_score_human = 0
         self.col_num = -1
 
     def get_neighbours(self, player_num):
@@ -139,7 +145,7 @@ class State:
         # self.state = self.state & colState
 
         temp_state.state = temp_state.state | remainder
-        #temp_state.parent = self
+        # temp_state.parent = self
 
         return temp_state
 
@@ -200,7 +206,7 @@ class State:
         sideRow1rowAllowed = True
 
         for i in range(start, 8):
-            if 8-start < 4 :
+            if 8 - start < 4:
                 sideRow1rowAllowed = False
                 break
             LastFilledCRow, cState = self.get_last_col_and_state(i)
@@ -239,7 +245,7 @@ class State:
         sideRow2rowAllowed = True
 
         for i in range(start, 0, -1):
-            if start-0 < 4 :
+            if start - 0 < 4:
                 sideRow2rowAllowed = False
                 break
             LastFilledCRow, cState = self.get_last_col_and_state(i)
@@ -307,14 +313,21 @@ class State:
 
         return c
 
-    def get_total_heuristic(self, score1, score2, heuristic_analysis_human, heuristic_analysis_computer,
-                            heurestic_score_human, heurestic_score_computer):
-        # ???? not sure??????????????????????????????????
-        # And computer_score and human_score can be used instead ???????
-        #score1 = self.get_new_score(self.col_num, State.computer)
-        #score2 = self.get_new_score(self.col_num, State.human)
-        # ???? not sure??????????????????????????????????
+    def get_total_heuristic(self):
 
+        if self.parent is not None:
+            x = self.parent
+            score1 = self.parent.human_score
+            score2 = self.parent.computer_score
+        else:
+            x = self
+            score1 = 0
+            score2 = 0
+
+        temp_heuristic_score_human = x.heuristic_score_human
+        temp_heuristic_score_comp = x.heuristic_score_computer
+        temp_heuristic_analysis_human = x.heuristic_analysis_human
+        temp_heuristic_analysis_comp = x.heuristic_analysis_computer
 
 
         if not score1:
@@ -322,35 +335,28 @@ class State:
         if not score2:
             score2 = 0.125 * score1
 
-        if not score1 and not score2 :
+        if not score1 and not score2:
             score1 = score2 = 1
 
-        score1Rat= score1 / (score2+score1)
+        score1Rat = score1 / (score2 + score1)
         score2Rat = score2 / (score2 + score1)
 
         heuristic_analysis1, heuristic_score1 = self.get_heuristic(self.col_num,
-                                                                   State.human, heuristic_analysis_human, heurestic_score_human)
-
-        print("=======================================")
+                                                                   State.human, temp_heuristic_analysis_human,
+                                                                   temp_heuristic_score_human)
         heuristic_analysis2, heuristic_score2 = self.get_heuristic(self.col_num,
-                                                                   State.computer, heuristic_analysis_computer, heurestic_score_computer)
+                                                                   State.computer, temp_heuristic_analysis_comp,
+                                                                   temp_heuristic_score_comp)
+
+        self.heuristic_score_human = heuristic_score1
+        self.heuristic_analysis_human = heuristic_analysis1
+        self.heuristic_analysis_computer = heuristic_analysis2
+        self.heuristic_score_computer = heuristic_score2
+
         total_heuristic = score1Rat * heuristic_score1 - score2Rat * heuristic_score2
-        print(heuristic_analysis1)
-        print(heuristic_analysis2)
-        print(heuristic_score1)
-        print(heuristic_score2)
-        #print(total_heuristic)
         return total_heuristic
 
     def get_heuristic(self, col_num, player_num, heuristic_analysis, heuristic_score):
-        '''
-        if self.parent is None:
-            temp_heuristic_analysis = self.heuristic_analysis
-            heuristic_score = 0
-        else:
-            temp_heuristic_analysis = self.parent.heuristic_analysis
-            heuristic_score = self.parent.heuristic_score
-        '''
         temp_heuristic_analysis = heuristic_analysis
 
         LastFilledRow, colState = self.get_last_col_and_state(col_num)
@@ -375,7 +381,7 @@ class State:
         for i in range(1, 8):
             LastFilledCRow, cState = self.get_last_col_and_state(i)
             if LastFilledCRow < LastFilledRow:
-                #print("last filled row is ", LastFilledCRow)
+                # print("last filled row is ", LastFilledCRow)
                 continue
 
             c = self.get_play(cState, LastFilledRow)
@@ -385,15 +391,15 @@ class State:
             else:
                 # if i > 4 and counter >= 3 and counter != i :
                 if i - opponent_counter > 4 and counter > 0:
-                    print("second i now is ", i)
+                    # print("second i now is ", i)
                     points_from_row = counter
                     break
                 else:
-                    print("i now is " , i)
+                    # print("i now is ", i)
                     points_from_row = 0
                 opponent_counter += 1
                 counter = 0
-                if 8-i < 4:
+                if 8 - i < 4:
                     break
 
             '''
@@ -402,7 +408,7 @@ class State:
                 counter -= 1
             '''
 
-        #print("entered and points from row is ", points_from_row)
+        # print("entered and points from row is ", points_from_row)
         # get points generated from side row 1
         points_from_sideRow1 = 0
         counter = 0
@@ -418,7 +424,7 @@ class State:
         sideRow1rowAllowed = True
 
         for i in range(start, 8):
-            if 8-start < 4 :
+            if 8 - start < 4:
                 sideRow1rowAllowed = False
                 break
             LastFilledCRow, cState = self.get_last_col_and_state(i)
@@ -428,7 +434,7 @@ class State:
                 continue
 
             c = self.get_play(cState, play_to_get)
-            print("cstate now is ", cState)
+            # print("cstate now is ", cState)
             play_to_get += 1
             if c == player_num:
                 counter += 1
@@ -436,7 +442,7 @@ class State:
             else:
                 # if i > 4 and counter >= 3 and counter != i :
                 if i - opponent_counter > 4 and counter > 0:
-                    print("enter and i is", i)
+                    # print("enter and i is", i)
                     points_from_sideRow1 = counter
                     break
                 else:
@@ -444,7 +450,7 @@ class State:
 
                 opponent_counter += 1
                 counter = 0
-                if 8-i < 4 :
+                if 8 - i < 4:
                     break
 
             if play_to_get > 6:
@@ -466,7 +472,7 @@ class State:
         sideRow2rowAllowed = True
 
         for i in range(start, 0, -1):
-            if start-0 < 4 :
+            if start - 0 < 4:
                 sideRow2rowAllowed = False
                 break
             LastFilledCRow, cState = self.get_last_col_and_state(i)
@@ -490,21 +496,21 @@ class State:
 
                 opponent_counter += 1
                 counter = 0
-                if i< 4 :
+                if i < 4:
                     break
 
             if play_to_get > 6:
                 break
 
-        print(points_from_row)
-        print(points_from_column)
-        print(points_from_sideRow1)
-        print(points_from_sideRow2)
+        # print(points_from_row)
+        # print(points_from_column)
+        # print(points_from_sideRow1)
+        # print(points_from_sideRow2)
         points_from_row -= temp_heuristic_analysis['r' + str(LastFilledRow)]
         points_from_column -= temp_heuristic_analysis['c' + str(col_num)]
 
-        print("side row 1 row is ", sideRow1row, "side row 1 col", sideRow1col)
-        print("side row 2 row is ", sideRow2row, "side row 2 col", sideRow2col)
+        # print("side row 1 row is ", sideRow1row, "side row 1 col", sideRow1col)
+        # print("side row 2 row is ", sideRow2row, "side row 2 col", sideRow2col)
 
         if sideRow1row < 4 and sideRow1rowAllowed:
             points_from_sideRow1 -= temp_heuristic_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
@@ -520,8 +526,6 @@ class State:
         if sideRow2row < 4 and sideRow2rowAllowed:
             temp_heuristic_analysis['rc' + str(sideRow2row) + str(sideRow2col)] += points_from_sideRow2
 
-        self.heuristic_analysis = temp_heuristic_analysis
-        self.heuristic_score = heuristic_score
         return temp_heuristic_analysis, heuristic_score
 
     def is_terminal(self):
@@ -537,29 +541,44 @@ class State:
 
         return counter == 7
 
+    def get_valid_col(self):
+        for i in range(1, 8):
+            if self.valid_play(i):
+                return i
+
+
 
 if __name__ == "__main__":
-    s = State(162165389432717312)
-    s.col_num = 5
-
-    heuristic_analysis_human = {
-        "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-        "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 1,
-        "rc37": 0, "rc27": 0, "rc17": 1, "rc16": 0, "rc15": 0, 'rc14': 0,
-        "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-    }
-
-    heuristic_analysis_computer = {
+    s = State(6665912438197727369)
+    s.col_num = 7
+    s.heuristic_analysis_human = {
         "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-        "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 1, "c7": 0,
-        "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 1, "rc15": 0, 'rc14': 0,
+        "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 1,
+        "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
         "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
     }
 
+    s.heuristic_analysis_computer = {
+        "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+        "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
+        "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
+        "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+    }
+    s.heuristic_score_human = 2
+    s.heuristic_score_computer = 1
+    dic = {}
+    neighbours = s.get_neighbours(State.computer)
+    for i in neighbours:
+        i.parent = s
+        print_state(i)
+        print(i.get_total_heuristic(0, 0))
 
-    heurestic_score  = s.get_total_heuristic(0,0, heuristic_analysis_human, heuristic_analysis_computer, 2, 3)
-    #print(new_heurestic_analysis)
-    print(heurestic_score)
+    k = State(6665947622569816201)
+    print_state(k)
+    # heuristic_score = s.get_total_heuristic()
+    # print(heuristic_score)
+    # print(new_heuristic_analysis)
+    # print(heuristic_score)
     #  score_analysis = {
     #     "r1": 3, "r2": 2, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
     #     "c1": 3, "c2": 2, "c3": 1, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
@@ -626,8 +645,8 @@ if __name__ == "__main__":
 
 # 8524845814331
 
-#heurestic test
-#positive heurestic means for human negative means for computer
+# heuristic test
+# positive heuristic means for human negative means for computer
 
 '''
 heuristic_analysis_human = {
@@ -637,7 +656,7 @@ heuristic_analysis_human = {
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 1, "rc13": 0
         }
 
-#expected new human heurestic      
+#expected new human heuristic      
 heuristic_analysis_human = {
             "r1": 4, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
             "c1": 0, "c2": 0, "c3": 1, "c4": 1, "c5": 0, "c6": 0, "c7": 1,
@@ -652,7 +671,7 @@ heuristic_analysis_computer = {
             "rc31": 0, "rc21": 0, "rc11": 2, "rc12": 1, "rc13": 1
         }
 
-#expected new computer heurestic      
+#expected new computer heuristic      
 heuristic_analysis_computer = {
             "r1": 0, "r2": 1, "r3": 1, "r4": 0, "r5": 0, "r6": 0,
             "c1": 1, "c2": 1, "c3": 0, "c4": 0, "c5": 1, "c6": 2, "c7": 1,
@@ -660,8 +679,8 @@ heuristic_analysis_computer = {
             "rc31": 0, "rc21": 0, "rc11": 2, "rc12": 1, "rc13": 1
         }
         
-old heurestic : -1.5
-expected new heurestic : 8.44444
+old heuristic : -1.5
+expected new heuristic : 8.44444
 
 old score_human : 0 old score_computer : 0
 new score_human : 1 new score_computer : 0
@@ -683,7 +702,7 @@ heuristic_analysis_human = {
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
         }
 
-#expected new human heurestic      
+#expected new human heuristic      
 heuristic_analysis_human = {
             "r1": 1, "r2": 1, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
             "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 2,
@@ -698,7 +717,7 @@ heuristic_analysis_computer = {
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
         }
 
-#expected new computer heurestic      
+#expected new computer heuristic      
 heuristic_analysis_computer = {
             "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
             "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 1, "c7": 0,
@@ -706,14 +725,14 @@ heuristic_analysis_computer = {
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
         }
 
-old heurestic : 0
-expected new heurestic : 1.5
+old heuristic : 0
+expected new heuristic : 1.5
 
 old score_human : 0 old score_computer : 0
 new score_human : 0 new score_computer : 0
 
-old heurestic_human : 3 old heurestic_computer : 3
-new heurestic_human : 6 new heurestic_computer : 3
+old heuristic_human : 3 old heuristic_computer : 3
+new heuristic_human : 6 new heuristic_computer : 3
 
 new state 
 468409545618620416
@@ -731,7 +750,7 @@ heuristic_analysis_human = {
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
         }
 
-#expected new human heurestic      
+#expected new human heuristic      
 heuristic_analysis_human = {
             "r1": 1, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
             "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 1, "c6": 0, "c7": 1,
@@ -746,7 +765,7 @@ heuristic_analysis_computer = {
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
         }
 
-#expected new computer heurestic      
+#expected new computer heuristic      
 heuristic_analysis_computer = {
             "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
             "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 1, "c7": 0,
@@ -754,14 +773,14 @@ heuristic_analysis_computer = {
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
         }
 
-old heurestic : -0.5
-expected new heurestic : 1.5
+old heuristic : -0.5
+expected new heuristic : 1.5
 
 old score_human : 0 old score_computer : 0
 new score_human : 0 new score_computer : 0
 
-old heurestic_human : 2 old heurestic_computer : 3
-new heurestic_human : 5 new heurestic_computer : 2
+old heuristic_human : 2 old heuristic_computer : 3
+new heuristic_human : 5 new heuristic_computer : 2
 
 
 new state 

@@ -27,6 +27,10 @@ if __name__ == '__main__':
             next_s.computer_score = next_s.get_new_score(next_s.col_num, State.computer)
             next_s.parent = current_state
             current_state = next_s
+            # for key, value in MiniMax.dic.items():
+            #     print_state(key)
+            #     print(value)
+            #     print("*********************************")
         else:
             player = True
             col = int(input("Enter column number: "))
@@ -36,4 +40,4 @@ if __name__ == '__main__':
             current_state = next_s
             current_state.col_num = col
 
-    print_game_path(first_state)
+    # print_game_path(first_state)
