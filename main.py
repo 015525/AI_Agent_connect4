@@ -15,7 +15,7 @@ if __name__ == '__main__':
     current_state = State(6485768453102907528)
     first_state = current_state
     player = False
-    alg = MiniMax(4)
+    alg = MiniMax(5)
     while True:
         print_state(current_state)
         if current_state.is_terminal():

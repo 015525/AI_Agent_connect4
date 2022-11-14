@@ -47,12 +47,6 @@ def print_state(state):
 class State:
     computer = 0
     human = 1
-    score_analysis = {
-        "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-        "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-        "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
-        "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-    }
 
     def __init__(self, state):
         self.parent = None
@@ -66,6 +60,12 @@ class State:
             "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
         }
         self.heuristic_analysis_computer = {
+            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
+            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
+            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
+            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
+        }
+        self.score_analysis = {
             "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
             "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
             "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
@@ -272,21 +272,21 @@ class State:
         # print(points_from_column)
         # print(points_from_sideRow1)
         # print(points_from_sideRow2)
-        points_from_row -= State.score_analysis['r' + str(LastFilledRow)]
-        points_from_column -= State.score_analysis['c' + str(col_num)]
+        points_from_row -= self.score_analysis['r' + str(LastFilledRow)]
+        points_from_column -=  self.score_analysis['c' + str(col_num)]
         if sideRow1row < 4 and sideRow1rowAllowed:
-            points_from_sideRow1 -= State.score_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
+            points_from_sideRow1 -=  self.score_analysis['rc' + str(sideRow1row) + str(sideRow1col)]
         if sideRow2row < 4 and sideRow2rowAllowed:
-            points_from_sideRow2 -= State.score_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
+            points_from_sideRow2 -=  self.score_analysis['rc' + str(sideRow2row) + str(sideRow2col)]
 
         score += points_from_row + points_from_column + points_from_sideRow2 + points_from_sideRow1
 
-        State.score_analysis['r' + str(LastFilledRow)] += points_from_row
-        State.score_analysis['c' + str(col_num)] += points_from_column
+        self.score_analysis['r' + str(LastFilledRow)] += points_from_row
+        self.score_analysis['c' + str(col_num)] += points_from_column
         if sideRow1row < 4 and sideRow1rowAllowed:
-            State.score_analysis['rc' + str(sideRow1row) + str(sideRow1col)] += points_from_sideRow1
+            self.score_analysis['rc' + str(sideRow1row) + str(sideRow1col)] += points_from_sideRow1
         if sideRow2row < 4 and sideRow2rowAllowed:
-            State.score_analysis['rc' + str(sideRow2row) + str(sideRow2col)] += points_from_sideRow2
+            self.score_analysis['rc' + str(sideRow2row) + str(sideRow2col)] += points_from_sideRow2
 
         return score
 
@@ -314,30 +314,38 @@ class State:
         return c
 
     def get_total_heuristic(self):
+        self.computer_score = self.get_new_score(self.col_num, State.computer)
+        self.human_score = self.get_new_score(self.col_num, State.human)
+
+        score1 = self.human_score
+        score2 = self.computer_score
 
         if self.parent is not None:
             x = self.parent
-            score1 = self.parent.human_score
-            score2 = self.parent.computer_score
+            # score1 = self.parent.human_score
+            # score2 = self.parent.computer_score
         else:
             x = self
-            score1 = 0
-            score2 = 0
+        #     score1 = 0
+        #     score2 = 0
 
         temp_heuristic_score_human = x.heuristic_score_human
         temp_heuristic_score_comp = x.heuristic_score_computer
         temp_heuristic_analysis_human = x.heuristic_analysis_human
         temp_heuristic_analysis_comp = x.heuristic_analysis_computer
 
-
         if not score1:
             score1 = 0.125 * score2
         if not score2:
             score2 = 0.125 * score1
 
-        if not score1 and not score2:
-            score1 = score2 = 1
+        if (score1 == 0) and (score2 == 0):
+            score1 = 1
+            score2 = 1
 
+        print(score1)
+        print(score2)
+        print_state(self)
         score1Rat = score1 / (score2 + score1)
         score2Rat = score2 / (score2 + score1)
 
@@ -354,7 +362,9 @@ class State:
         self.heuristic_score_computer = heuristic_score2
 
         total_heuristic = score1Rat * heuristic_score1 - score2Rat * heuristic_score2
-        return total_heuristic
+        print("********")
+        print(self.score_analysis)
+        return -total_heuristic
 
     def get_heuristic(self, col_num, player_num, heuristic_analysis, heuristic_score):
         temp_heuristic_analysis = heuristic_analysis
@@ -547,7 +557,6 @@ class State:
                 return i
 
 
-
 if __name__ == "__main__":
     s = State(6665912438197727369)
     s.col_num = 7
@@ -579,14 +588,14 @@ if __name__ == "__main__":
     # print(heuristic_score)
     # print(new_heuristic_analysis)
     # print(heuristic_score)
-    #  score_analysis = {
+    #  self.score_analysis = {
     #     "r1": 3, "r2": 2, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
     #     "c1": 3, "c2": 2, "c3": 1, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
     #     "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
     #     "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
     # }
     # sc = s.get_new_score(11, 4, 1)
-    # print(State.score_analysis)
+    # print(self.score_analysis)
     # print(sc)
     '''
     s = State(679293331470573)

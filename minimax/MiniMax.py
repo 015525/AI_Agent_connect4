@@ -1,5 +1,5 @@
 import sys
-from state.State import print_state, State
+from state.State import State
 
 
 class MiniMax:
@@ -16,6 +16,10 @@ class MiniMax:
         next_state = current_state
         next_state = next_state.update_state(col, State.computer)
         next_state.col_num = col
+        print("****human****")
+        print(next_state.heuristic_analysis_human)
+        print("****computer***")
+        print(next_state.heuristic_analysis_computer)
         # ????????????????????????????
         return next_state
 
@@ -29,6 +33,7 @@ class MiniMax:
             neighbours = state.get_neighbours(state.computer)
             for child in neighbours:
                 child.parent = state
+
                 child.get_total_heuristic()
                 max = self._minimax(child, depth - 1, False)[0]
                 if max > value:
