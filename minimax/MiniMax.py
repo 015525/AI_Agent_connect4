@@ -16,41 +16,46 @@ class MiniMax:
         # next_state = current_state
         # next_state = next_state.update_state(col, State.computer)
         # next_state.col_num = col
-        print("****human****")
-        print(next_state.heuristic_analysis_human)
-        print("****computer***")
-        print(next_state.heuristic_analysis_computer)
+        # neighbours = current_state.get_neighbours(State.computer)
+        # for child in neighbours:
+        #     print_state(child)
+        #     print(MiniMax.dic[child.state])
+        #     print("******************")
+        # print("****human****")
+        # print(next_state.heuristic_analysis_human)
+        # print("****computer***")
+        # print(next_state.heuristic_analysis_computer)
         # ????????????????????????????
         return next_state
 
     def _minimax(self, state, depth, MaximizingPlayer):
         if depth == 0 or state.is_terminal():
-            return state.get_total_heuristic(), None
+            return state.try_heuristic(), None
 
         if MaximizingPlayer:
             value = float('-inf')
-            # col = state.get_valid_col()
-            ss = state
+            col = state.get_valid_col()
             neighbours = state.get_neighbours(state.computer)
+            ss = state
             for child in neighbours:
-                child.parent = state
-                child.get_total_heuristic()
                 max = self._minimax(child, depth - 1, False)[0]
                 if max > value:
                     value = max
                     ss = child
+
             return value, ss
 
         else:
             value = sys.float_info.max
-            # col = state.get_valid_col()
+            col = state.get_valid_col()
             neighbours = state.get_neighbours(state.human)
             ss = state
             for child in neighbours:
-                child.parent = state
-                child.get_total_heuristic()
+                # child.parent = state
+                # child.get_total_heuristic()
                 min = self._minimax(child, depth - 1, True)[0]
                 if min < value:
                     value = min
                     ss = child
-            return value, ss
+
+        return value, ss
