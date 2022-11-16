@@ -1,5 +1,4 @@
 import sys
-from state.State import State
 
 
 class MiniMax:
@@ -21,7 +20,8 @@ class MiniMax:
         if MaximizingPlayer:
             value = float('-inf')
             neighbours = state.get_neighbours(state.computer)
-            ss = state
+            self.neighbours = neighbours
+            ss = None
             for child in neighbours:
                 max = self._minimax(child, depth - 1, False)[0]
                 if max > value:
@@ -32,7 +32,8 @@ class MiniMax:
         else:
             value = sys.float_info.max
             neighbours = state.get_neighbours(state.human)
-            ss = state
+            self.neighbours = neighbours
+            ss = None
             for child in neighbours:
                 min = self._minimax(child, depth - 1, True)[0]
                 if min < value:
