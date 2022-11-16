@@ -6,8 +6,8 @@ if __name__ == '__main__':
     current_state = State(6485768453102907528)
     first_state = current_state
     player = False
-    # alg = MiniMax(4)
-    alg = alphabeta(8)
+    alg = MiniMax(4)
+    # alg = alphabeta(8)
 
     while True:
 
