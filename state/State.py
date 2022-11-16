@@ -10,52 +10,40 @@
 import numpy as np
 
 
+def get_score(f1, f2, f3, f4, player):
+    four = 0
+    three = 0
+    two = 0
+    if f1 == player and f2 == player and f3 == player and f4 == player:
+        four += 1
+    elif f1 == '*' and f2 == player and f3 == player and f4 == player:
+        three += 1
+    elif f1 == player and f2 == '*' and f3 == player and f4 == player:
+        three += 1
+    elif f1 == player and f2 == player and f3 == '*' and f4 == player:
+        three += 1
+    elif f1 == player and f2 == player and f3 == player and f4 == '*':
+        three += 1
+    elif f1 == player and f2 == player and f3 == '*' and f4 == '*':
+        two += 1
+    elif f1 == '*' and f1 == '*' and f2 == player and f3 == player and f4 == player:
+        two += 1
+    elif f1 == player and f2 == '*' and f3 == '*' and f4 == player:
+        two += 1
+
+    return four, three, two
+
+
 class State:
     computer = 0
     human = 1
 
     def __init__(self, state):
-        self.parent = None
         self.state = state
         self.computer_score = 0
         self.human_score = 0
-        self.before = False
-        self.heuristic_analysis_human = {
-            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
-            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-        }
-        self.heuristic_analysis_computer = {
-            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
-            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-        }
-        self.human_score_analysis = {
-            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
-            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-        }
-
-        self.computer_score_analysis = {
-            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
-            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-        }
-        '''
-        self.score_analysis = {
-            "r1": 0, "r2": 0, "r3": 0, "r4": 0, "r5": 0, "r6": 0,
-            "c1": 0, "c2": 0, "c3": 0, "c4": 0, "c5": 0, "c6": 0, "c7": 0,
-            "rc37": 0, "rc27": 0, "rc17": 0, "rc16": 0, "rc15": 0, 'rc14': 0,
-            "rc31": 0, "rc21": 0, "rc11": 0, "rc12": 0, "rc13": 0
-        }
-        '''
-        self.heuristic_score_computer = 0
-        self.heuristic_score_human = 0
         self.col_num = -1
+        self.neighbours = []
 
     def get_neighbours(self, player_num):
         neighbours = []
@@ -367,77 +355,54 @@ class State:
             board.append(row)
         return board
 
-    def try_heuristic(self):
+    def get_heuristic(self):
+        return self.calculate_heuristic(State.computer) - self.calculate_heuristic(State.human)
+
+    def calculate_heuristic(self, player):
 
         board = self.get_board()
-        # self.print_state()
-        comp_row_score = 0
-        hum_row_score = 0
-
+        four = 0
+        three = 0
+        two = 0
         for i in range(0, 6, 1):
-            row = 1
-            lis_row = []
-            for j in range(1, 7, 1):
-                if board[i][j] == board[i][j - 1]:
-                    row += 1
-                if (board[i][j] != board[i][j - 1]) or (
-                        j == 6 and (board[i][j] == board[i][j - 1])):
-                    prev = board[i][j - 1]
-                    current = board[i][j]
+            for j in range(0, 7, 1):
+                if j + 3 < 7:
+                    f1 = board[i][j]
+                    f2 = board[i][j + 1]
+                    f3 = board[i][j + 2]
+                    f4 = board[i][j + 3]
+                    current_four, current_three, current_two = get_score(f1, f2, f3, f4, player)
+                    four += current_four
+                    three += current_three
+                    two += current_two
 
-                    x = (prev, row)
-                    lis_row.append(x)
-                    comp_row_score, hum_row_score = self.try_score(lis_row, row, comp_row_score,
-                                                                   hum_row_score)
-                    row = 1
-                    if j == 6 and (board[i][j] != board[i][j - 1]):
-                        x = (current, row)
-                        lis_row.append(x)
-                        comp_row_score, hum_row_score = self.try_score(lis_row, row, comp_row_score,
-                                                                       hum_row_score)
+        for j in range(0, 7, 1):
+            for i in range(0, 6, 1):
+                if i + 3 < 6:
+                    f1 = board[i][j]
+                    f2 = board[i + 1][j]
+                    f3 = board[i + 2][j]
+                    f4 = board[i + 3][j]
+                    current_four, current_three, current_two = get_score(f1, f2, f3, f4, player)
+                    four += current_four
+                    three += current_three
+                    two += current_two
 
-            # if i == 5:
-            #     prev = board[i][6 - 1]
-            #     current = board[i][6]
-            #     lis_row.append((current, row))
-            #     comp_row_score, hum_row_score = self.try_score(row, comp_row_score, hum_row_score,
-            #                                                    prev, current)
-            # print(lis_row)
-        comp_col_score = 0
-        hum_col_score = 0
-        for i in range(0, 7, 1):
-            col = 1
-            lis_col = []
-            for j in range(1, 6, 1):
+        for line in range(1, (6 + 7)):
+            start_col = max(0, line - 6)
+            count = min(line, (7 - start_col), 6)
+            for j in range(0, count):
+                if (min(6, line) - j - 3 - 1) >= 0 and (start_col + j + 3) < 7:
+                    f1 = board[min(6, line) - j - 1][start_col + j]
+                    f2 = board[min(6, line) - j - 1 - 1][start_col + j + 1]
+                    f3 = board[min(6, line) - j - 2 - 1][start_col + j + 2]
+                    f4 = board[min(6, line) - j - 3 - 1][start_col + j + 3]
+                    current_four, current_three, current_two = get_score(f1, f2, f3, f4, player)
+                    four += current_four
+                    three += current_three
+                    two += current_two
 
-                if board[j][i] == board[j - 1][i]:
-                    col += 1
-
-                if (board[j][i] != board[j - 1][i]) or (
-                        j == 5 and board[j][i] == board[j - 1][i]):
-                    prev = board[j - 1][i]
-                    current = board[j][i]
-                    lis_col.append((prev, col))
-                    comp_col_score, hum_col_score = self.try_score(lis_col, col, comp_col_score,
-                                                                   hum_col_score)
-                    col = 1
-                    if j == 5 and board[j][i] != board[j - 1][i]:
-                        lis_col.append((board[j][i], 1))
-                        comp_col_score, hum_col_score = self.try_score(lis_col, col, comp_col_score,
-                                                                       hum_col_score)
-
-            # if i == 6:
-            #     prev = board[5 - 1][i]
-            #     current = board[5][i]
-            #     lis_col.append((current, col))
-            #     comp_col_score, hum_col_score = self.try_score(col, comp_col_score, hum_col_score,
-            #                                                    prev, current)
-            # print(lis_col)
-        # print(comp_row_score)
-        # print(comp_col_score)
-        # print(hum_row_score)
-        # print(hum_col_score)
-        return comp_row_score + comp_col_score - hum_row_score - hum_col_score
+        return four * 100 + three * 50 + two * 20
 
     def is_terminal(self):
         temp_state = self.state
@@ -457,61 +422,6 @@ class State:
             if self.valid_play(i):
                 return i
 
-    def try_score(self, lis, count, com_score, hum_score):
-        i = 1
-        index = len(lis) - i
-        current = lis[index]
-        counter = 0
-        play_counter = 0
-        play = '*'
-
-        if current[0] == '1' or current[0] == '0':
-            index -= 1
-            counter = current[1]
-            if counter >= 4 and current[0] == '1':
-                return -1000000000000000000, 0
-            elif counter >= 4 and current[0] == '0':
-                return 10000000000000000000, 0
-            play_counter = counter
-            play = current[0]
-            while index >= 0:
-                if lis[index][0] == current[0] or lis[index][0] == '*':
-                    counter += lis[index][1]
-                    if lis[index][0] == current[0]:
-                        play_counter += lis[index][1]
-                else:
-                    break
-                index -= 1
-
-        if current[0] == '*':
-            play = 'null'
-            index -= 1
-            counter = current[1]
-            if index >= 0:
-                current = lis[index]
-                play = current[0]
-                while index > 0:
-                    if lis[index][0] == current[0] or lis[index][0] == '*':
-                        counter += lis[index][1]
-                        if lis[index][0] == current[0]:
-                            play_counter += lis[index][1]
-                    else:
-                        break
-                    index -= 1
-
-            #####
-        # print(lis)
-        # print(play)
-        # print(counter)
-
-        # if 0 <= (counter - play_counter) <= 4 and play == '0':
-        #     return com_score + 1000000, 0
-        #
-        # if 0 <= (counter - play_counter) <= 4 and play == '1':
-        #     return com_score - 1000000, 0
-
-        return com_score  + 100000001, 0
-
 
 if __name__ == "__main__":
     s = State(68730783870)
@@ -529,4 +439,4 @@ if __name__ == "__main__":
     s = s.update_state(7, State.human)
     s = s.update_state(3, State.human)
     s.print_state()
-    s.try_heuristic()
+    s.get_heuristic()
