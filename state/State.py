@@ -464,12 +464,11 @@ class State:
         counter = 0
         play_counter = 0
         play = '*'
-
         if current[0] == '1' or current[0] == '0':
             index -= 1
             counter = current[1]
             if counter >= 4 and current[0] == '1':
-                return -1000000000000000000, 0
+                return -1000000000, 0
             elif counter >= 4 and current[0] == '0':
                 return 10000000000000000000, 0
             play_counter = counter
@@ -510,7 +509,7 @@ class State:
         # if 0 <= (counter - play_counter) <= 4 and play == '1':
         #     return com_score - 1000000, 0
 
-        return com_score  + 100000001, 0
+        return com_score + 100000001, 0
 
 
 if __name__ == "__main__":
@@ -530,3 +529,35 @@ if __name__ == "__main__":
     s = s.update_state(3, State.human)
     s.print_state()
     s.try_heuristic()
+
+
+def get_heuresticRow(self, player_num, LastFilledRow):
+    # print("iam in get heurestic side row")
+    points_from_row = 0
+    counter = 0
+    opponent_counter = 0
+    for i in range(1, 8):
+        LastFilledCRow, cState = self.get_last_col_and_state(i)
+        if LastFilledCRow < LastFilledRow:
+            # print("last filled row is ", LastFilledCRow)
+            continue
+
+        c = self.get_play(cState, LastFilledRow)
+        if c == player_num:
+            counter += 1
+            points_from_row = counter
+        else:
+            # if i > 4 and counter >= 3 and counter != i :
+            if i - opponent_counter > 4 and counter > 0:
+                # print("second i now is ", i)
+                points_from_row = counter
+                break
+            else:
+                # print("i now is ", i)
+                points_from_row = 0
+            opponent_counter += 1
+            counter = 0
+            if 8 - i < 4:
+                break
+
+    return points_from_row
