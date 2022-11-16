@@ -43,6 +43,7 @@ class State:
         self.computer_score = 0
         self.human_score = 0
         self.col_num = -1
+        self.neighbours = []
 
     def get_neighbours(self, player_num):
         neighbours = []
@@ -438,4 +439,4 @@ if __name__ == "__main__":
     s = s.update_state(7, State.human)
     s = s.update_state(3, State.human)
     s.print_state()
-    s.try_heuristic(State.computer)
+    s.get_heuristic()
