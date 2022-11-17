@@ -1,5 +1,7 @@
 import sys
 
+from state.State import State
+
 
 class MiniMax:
     dic = {}
@@ -10,8 +12,8 @@ class MiniMax:
         self.tree = {}
 
     def get_next_state(self, current_state):
-        val, next_state = self._minimax(current_state, self.max_depth, True)
-        return next_state
+        val, col = self._minimax(current_state, self.max_depth, True)
+        return col
 
     def _minimax(self, state, depth, MaximizingPlayer):
         if depth == 0 or state.is_terminal():
@@ -21,23 +23,23 @@ class MiniMax:
             value = float('-inf')
             neighbours = state.get_neighbours(state.computer)
             self.neighbours = neighbours
-            ss = None
+            col = None
             for child in neighbours:
                 max = self._minimax(child, depth - 1, False)[0]
                 if max > value:
                     value = max
-                    ss = child
-            return value, ss
+                    col = child.col_num
+            return value, col
 
         else:
             value = sys.float_info.max
             neighbours = state.get_neighbours(state.human)
             self.neighbours = neighbours
-            ss = None
+            col = None
             for child in neighbours:
                 min = self._minimax(child, depth - 1, True)[0]
                 if min < value:
                     value = min
-                    ss = child
+                    col = child.col_num
 
-        return value, ss
+        return value, col
