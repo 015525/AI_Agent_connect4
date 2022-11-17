@@ -12,7 +12,7 @@ class MiniMax:
     def __init__(self, max_depth):
         self.max_depth = max_depth
         self.next_state = None
-        self.tree = {}
+        #self.tree = {}
 
     def get_next_state(self, current_state):
         self.tree = {}
@@ -22,6 +22,7 @@ class MiniMax:
 
     def _minimax(self, state, depth, MaximizingPlayer):
         if depth == 0 or state.is_terminal():
+
             return state.get_heuristic(), None
 
         if MaximizingPlayer:
@@ -29,10 +30,12 @@ class MiniMax:
             neighbours = state.get_neighbours(state.computer)
             self.neighbours = neighbours
             col = None
-            self.tree[str(state.state)] = []
+            curr_state_heurestic = state.get_heuristic()
+            self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
             for child in neighbours:
-                self.tree[str(state.state)].append(str(child.state))
+
                 max = self._minimax(child, depth - 1, False)[0]
+                self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(max))
                 if max > value:
                     value = max
                     col = child.col_num
@@ -43,10 +46,12 @@ class MiniMax:
             neighbours = state.get_neighbours(state.human)
             self.neighbours = neighbours
             col = None
-            self.tree[str(state.state)] = []
+            curr_state_heurestic = state.get_heuristic()
+            self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
             for child in neighbours:
-                self.tree[str(state.state)].append(str(child.state))
+                #self.tree[str(state.state) + "@" + str(state.get_heuristic())].append(str(child.state) + "@" + str(child.get_heuristic()))
                 min = self._minimax(child, depth - 1, True)[0]
+                self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(min))
                 if min < value:
                     value = min
                     col = child.col_num
@@ -57,12 +62,16 @@ class MiniMax:
         nodes = self.tree.keys()# all nodes in the tree
         #firstKey = self.tree.keys()[0]
         tree = Tree()
-        tree.create_node(f"{list(nodes)[0]}", f"{list(nodes)[0]}@") # root node
+        tree.create_node(f"{list(nodes)[0]}", f"{list(nodes)[0]}") # root node
         for i in nodes: #range(1, len(nodes)):
             for j in self.tree[i]:
-                print(type(i), type(j))
-                tree.create_node(f"{j}", f"{j}@", parent=f"{i}")
+                #print(type(i), type(j))
+                try:
+                    tree.create_node(f"{j}", f"{j}", parent=f"{i}")
+                except:
+                    continue
 
+        print("shown tree is  : ")
         tree.show()
 
 

@@ -131,6 +131,12 @@ class State:
 
         return temp_state
 
+    def get_total_score(self):
+        score_human,_,_ = self.calculate_heuristic(State.human)
+        score_computer,_,_ = self.calculate_heuristic(State.computer)
+
+        return score_human, score_computer
+
     def get_pointsSideRow2(self, col_num, LastFilledRow, player_num):
         points_from_sideRow2 = 0
         counter = 0
@@ -362,7 +368,10 @@ class State:
         return board
 
     def get_heuristic(self):
-        return self.calculate_heuristic(State.computer) - self.calculate_heuristic(State.human)
+        fourC, threeC, twoC = self.calculate_heuristic(State.computer)
+        fourH, threeH, twoH = self.calculate_heuristic(State.human)
+
+        return (fourC*1000 + threeC*500 + twoC*200) - (fourH*1000 + threeH*500 + twoH*200)
 
     def calculate_heuristic(self, player, debug=False):
 
@@ -428,7 +437,7 @@ class State:
         #
         if debug:
             print(four, three, two, sep='  ')
-        return four * 1000 + three * 500 + two * 200
+        return four , three , two
 
     def is_terminal(self):
         temp_state = self.state
@@ -465,4 +474,5 @@ if __name__ == "__main__":
     s = s.update_state(7, State.human)
     s = s.update_state(3, State.human)
     s.print_state()
+    #print("current score ",s.get_total_score()[0], s.get_total_score()[1])
     s.calculate_heuristic(0, True)
