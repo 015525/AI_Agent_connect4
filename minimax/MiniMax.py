@@ -1,10 +1,13 @@
 import sys
 
+from treelib import Tree
+
 from state.State import State
 
 
 class MiniMax:
     dic = {}
+    #tree = {}
 
     def __init__(self, max_depth):
         self.max_depth = max_depth
@@ -12,7 +15,9 @@ class MiniMax:
         self.tree = {}
 
     def get_next_state(self, current_state):
+        self.tree = {}
         val, col = self._minimax(current_state, self.max_depth, True)
+        self.print_minimaxTree()
         return col
 
     def _minimax(self, state, depth, MaximizingPlayer):
@@ -24,7 +29,9 @@ class MiniMax:
             neighbours = state.get_neighbours(state.computer)
             self.neighbours = neighbours
             col = None
+            self.tree[str(state.state)] = []
             for child in neighbours:
+                self.tree[str(state.state)].append(str(child.state))
                 max = self._minimax(child, depth - 1, False)[0]
                 if max > value:
                     value = max
@@ -36,10 +43,27 @@ class MiniMax:
             neighbours = state.get_neighbours(state.human)
             self.neighbours = neighbours
             col = None
+            self.tree[str(state.state)] = []
             for child in neighbours:
+                self.tree[str(state.state)].append(str(child.state))
                 min = self._minimax(child, depth - 1, True)[0]
                 if min < value:
                     value = min
                     col = child.col_num
 
         return value, col
+
+    def print_minimaxTree(self):
+        nodes = self.tree.keys()# all nodes in the tree
+        #firstKey = self.tree.keys()[0]
+        tree = Tree()
+        tree.create_node(f"{list(nodes)[0]}", f"{list(nodes)[0]}@") # root node
+        for i in nodes: #range(1, len(nodes)):
+            for j in self.tree[i]:
+                print(type(i), type(j))
+                tree.create_node(f"{j}", f"{j}@", parent=f"{i}")
+
+        tree.show()
+
+
+
