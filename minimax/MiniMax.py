@@ -12,7 +12,7 @@ class MiniMax:
     def __init__(self, max_depth):
         self.max_depth = max_depth
         self.next_state = None
-        #self.tree = {}
+        self.tree = {}
 
     def get_next_state(self, current_state):
         self.tree = {}
@@ -33,9 +33,9 @@ class MiniMax:
             curr_state_heurestic = state.get_heuristic()
             self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
             for child in neighbours:
-
+                self.tree[str(state.state) + "@" + str(state.get_heuristic())].append(str(child.state) + "@" + str(child.get_heuristic()))
                 max = self._minimax(child, depth - 1, False)[0]
-                self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(max))
+                #self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(max))
                 if max > value:
                     value = max
                     col = child.col_num
@@ -49,9 +49,9 @@ class MiniMax:
             curr_state_heurestic = state.get_heuristic()
             self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
             for child in neighbours:
-                #self.tree[str(state.state) + "@" + str(state.get_heuristic())].append(str(child.state) + "@" + str(child.get_heuristic()))
+                self.tree[str(state.state) + "@" + str(state.get_heuristic())].append(str(child.state) + "@" + str(child.get_heuristic()))
                 min = self._minimax(child, depth - 1, True)[0]
-                self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(min))
+                #self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(min))
                 if min < value:
                     value = min
                     col = child.col_num

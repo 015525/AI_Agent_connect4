@@ -31,8 +31,9 @@ class alphabeta:
             max_value = float('-inf')
             col = None
             curr_state_heurestic = state.get_heuristic()
-            #self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
+            self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
             for child in state.get_neighbours(state.computer):
+                self.tree[str(state.state) + "@" + str(state.get_heuristic())].append(str(child.state) + "@" + str(child.get_heuristic()))
                 max_value = self._alpha_beta_pruning(child, depth - 1, not maxPlayer, alpha, beta)[0]
                 #self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(max_value))
                 if max_value >= beta:
@@ -45,8 +46,9 @@ class alphabeta:
             min_value = sys.float_info.max
             col = None
             curr_state_heurestic = state.get_heuristic()
-            #self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
+            self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
             for child in state.get_neighbours(state.computer):
+                self.tree[str(state.state) + "@" + str(state.get_heuristic())].append(str(child.state) + "@" + str(child.get_heuristic()))
                 min_value = self._alpha_beta_pruning(child, depth - 1, not maxPlayer, alpha, beta)[0]
                 #self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(min_value))
                 if min_value <= alpha:
