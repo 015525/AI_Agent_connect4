@@ -26,9 +26,15 @@ def get_score(f1, f2, f3, f4, player):
         three += 1
     elif f1 == player and f2 == player and f3 == '*' and f4 == '*':
         two += 1
-    elif f1 == '*' and f1 == '*' and f2 == player and f3 == player and f4 == player:
+    elif f1 == '*' and f2 == '*' and f3 == player and f4 == player:
         two += 1
     elif f1 == player and f2 == '*' and f3 == '*' and f4 == player:
+        two += 1
+    elif f1 == '*' and f2 == player and f3 == player and f4 == '*':
+        two += 1
+    elif f1 == '*' and f2 == player and f3 == '*' and f4 == player:
+        two += 1
+    elif f1 == player and f2 == '*' and f3 == player and f4 == '*':
         two += 1
 
     return four, three, two
@@ -358,7 +364,7 @@ class State:
     def get_heuristic(self):
         return self.calculate_heuristic(State.computer) - self.calculate_heuristic(State.human)
 
-    def calculate_heuristic(self, player):
+    def calculate_heuristic(self, player, debug=False):
 
         board = self.get_board()
         four = 0
@@ -393,6 +399,8 @@ class State:
             count = min(line, (7 - start_col), 6)
             for j in range(0, count):
                 if (min(6, line) - j - 3 - 1) >= 0 and (start_col + j + 3) < 7:
+                    if debug:
+                        print(min(6, line) - j - 1, start_col + j, sep="  ")
                     f1 = board[min(6, line) - j - 1][start_col + j]
                     f2 = board[min(6, line) - j - 1 - 1][start_col + j + 1]
                     f3 = board[min(6, line) - j - 2 - 1][start_col + j + 2]
@@ -402,7 +410,25 @@ class State:
                     three += current_three
                     two += current_two
 
-        return four * 100 + three * 50 + two * 20
+        for line in range((6 + 7) - 1, 0, - 1):
+            start_col = min(6, line - 1)
+            count = min((6 + 7) - line, start_col + 1, 6)
+            for j in range(0, count):
+                # print(min(6, (6 + 7) - line) - j - 1,start_col - j, sep="  ")
+                if (min(6, (6 + 7) - line) - j - 3 - 1) >= 0 and (start_col - j - 3) > -1:
+                    f1 = board[min(6, (6 + 7) - line) - j - 1][start_col - j]
+                    f2 = board[min(6, (6 + 7) - line) - j - 1 - 1][start_col - j - 1]
+                    f3 = board[min(6, (6 + 7) - line) - j - 2 - 1][start_col - j - 2]
+                    f4 = board[min(6, (6 + 7) - line) - j - 3 - 1][start_col - j - 3]
+                    current_four, current_three, current_two = get_score(f1, f2, f3, f4, player)
+                    four += current_four
+                    three += current_three
+                    two += current_two
+            # print()
+        #
+        if debug:
+            print(four, three, two, sep='  ')
+        return four * 1000 + three * 500 + two * 200
 
     def is_terminal(self):
         temp_state = self.state
@@ -439,4 +465,4 @@ if __name__ == "__main__":
     s = s.update_state(7, State.human)
     s = s.update_state(3, State.human)
     s.print_state()
-    s.get_heuristic()
+    s.calculate_heuristic(0, True)
