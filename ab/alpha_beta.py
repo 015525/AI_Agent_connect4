@@ -10,9 +10,10 @@ class alphabeta:
         self.nextState = None
 
     def get_next_state(self, currentState):
-        value, next_state = self._alpha_beta_pruning(currentState, self.maxDepth, True, float('-inf'),
+        value, col = self._alpha_beta_pruning(currentState, self.maxDepth, True, float('-inf'),
                                                      sys.float_info.max)
-        return next_state
+
+        return col
 
     def _alpha_beta_pruning(self, state, depth, maxPlayer, alpha, beta):
         if depth == 0 or state.is_terminal():
@@ -20,23 +21,23 @@ class alphabeta:
 
         if maxPlayer:
             max_value = float('-inf')
-            ss = state
+            col = None
             for child in state.get_neighbours(state.computer):
                 max_value = self._alpha_beta_pruning(child, depth - 1, not maxPlayer, alpha, beta)[0]
                 if max_value >= beta:
                     break
                 if max_value > alpha:
                     alpha = max_value
-                    ss = child
-            return max_value, ss
+                    col = child.col_num
+            return max_value, col
         else:
             min_value = sys.float_info.max
-            ss = state
+            col = None
             for child in state.get_neighbours(state.computer):
                 min_value = self._alpha_beta_pruning(child, depth - 1, not maxPlayer, alpha, beta)[0]
                 if min_value <= alpha:
                     break
                 if min_value < beta:
-                    ss = child
                     beta = min_value
-            return min_value, ss
+                    col = child.col_num
+            return min_value, col

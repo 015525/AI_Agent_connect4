@@ -399,6 +399,8 @@ class State:
             count = min(line, (7 - start_col), 6)
             for j in range(0, count):
                 if (min(6, line) - j - 3 - 1) >= 0 and (start_col + j + 3) < 7:
+                    if debug:
+                        print(min(6, line) - j - 1, start_col + j, sep="  ")
                     f1 = board[min(6, line) - j - 1][start_col + j]
                     f2 = board[min(6, line) - j - 1 - 1][start_col + j + 1]
                     f3 = board[min(6, line) - j - 2 - 1][start_col + j + 2]
@@ -463,4 +465,4 @@ if __name__ == "__main__":
     s = s.update_state(7, State.human)
     s = s.update_state(3, State.human)
     s.print_state()
-    s.get_heuristic()
+    s.calculate_heuristic(0, True)

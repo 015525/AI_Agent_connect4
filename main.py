@@ -7,7 +7,7 @@ if __name__ == '__main__':
     first_state = current_state
     player = False
     alg = MiniMax(4)
-    # alg = alphabeta(8)
+    # alg = alphabeta(7)
 
     while True:
 
@@ -17,8 +17,9 @@ if __name__ == '__main__':
 
         if player:
             player = False
-            next_s = alg.get_next_state(current_state)
-            current_state = next_s
+            col = alg.get_next_state(current_state)
+            next_state = current_state.update_state(col, State.computer)
+            current_state = next_state
         else:
             player = True
             col = int(input("Enter column number: "))
