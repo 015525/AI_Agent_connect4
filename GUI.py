@@ -119,6 +119,8 @@ def play_game(algorithm, depth):
                         turn = (turn + 1) % 2
 
                 draw_board(screen, board)
+                h_score, c_score = current_state.get_total_score()
+                print(f"human score = : {h_score}, and computer score  = {c_score}")
                 game_over = check_end_game(board)
                 if game_over:
                     keep_running = True
