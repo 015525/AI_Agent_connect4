@@ -390,13 +390,27 @@ class State:
 
         for line in range(1, (6 + 7)):
             start_col = max(0, line - 6)
-            count = min(line, (7 - start_col), 6)
+            count = min(line, (7 - start_col), 6) # الستة ملهاش لازمة # six has no binifit
             for j in range(0, count):
                 if (min(6, line) - j - 3 - 1) >= 0 and (start_col + j + 3) < 7:
                     f1 = board[min(6, line) - j - 1][start_col + j]
                     f2 = board[min(6, line) - j - 1 - 1][start_col + j + 1]
                     f3 = board[min(6, line) - j - 2 - 1][start_col + j + 2]
                     f4 = board[min(6, line) - j - 3 - 1][start_col + j + 3]
+                    current_four, current_three, current_two = get_score(f1, f2, f3, f4, player)
+                    four += current_four
+                    three += current_three
+                    two += current_two
+
+        for line in range((6+7)-1, 0):
+            start_col = min(6, line-1)
+            count = min((6+7)-line, start_col+1 , 6) # الستة ملهاش لازمة # six has no binifit
+            for j in range(0, count):
+                if (min(6, (6+7)-line) - j - 3 - 1) >= 0 and (start_col - j - 3) > -1:
+                    f1 = board[min(6, (6+7)-line) - j - 1][start_col - j]
+                    f2 = board[min(6, (6+7)-line) - j - 1 - 1][start_col - j - 1]
+                    f3 = board[min(6, (6+7)-line) - j - 2 - 1][start_col - j - 2]
+                    f4 = board[min(6, (6+7)-line) - j - 3 - 1][start_col - j - 3]
                     current_four, current_three, current_two = get_score(f1, f2, f3, f4, player)
                     four += current_four
                     three += current_three
