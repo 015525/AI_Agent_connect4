@@ -24,3 +24,6 @@ if __name__ == '__main__':
             col = int(input("Enter column number: "))
             next_s = current_state.update_state(col, State.human)
             current_state = next_s
+
+        # current_state.calculate_heuristic(0, True)
+        # current_state.calculate_heuristic(1, True)
