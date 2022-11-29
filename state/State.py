@@ -371,6 +371,9 @@ class State:
         fourC, threeC, twoC = self.calculate_heuristic(State.computer)
         fourH, threeH, twoH = self.calculate_heuristic(State.human)
 
+        if self.is_terminal():
+            #print("entered here")
+            return fourC - fourH
         return (fourC*1000 + threeC*500 + twoC*200) - (fourH*1000 + threeH*500 + twoH*200)
 
     def calculate_heuristic(self, player, debug=False):
