@@ -4,7 +4,7 @@ import sys
 from treelib import Tree
 
 from state.State import State
-
+showing_tree = False
 
 class alphabeta:
 
@@ -25,6 +25,7 @@ class alphabeta:
     def _alpha_beta_pruning(self, state, depth, maxPlayer, alpha, beta):
         #print("depth is ",depth)
         if depth == 0 or state.is_terminal():
+            #print('state is terminal', state.state)
             return state.get_heuristic(), None
 
         if maxPlayer:
@@ -32,6 +33,7 @@ class alphabeta:
             col = None
             curr_state_heurestic = state.get_heuristic()
             self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
+            #print('state and length of childs',state.state, len(state.get_neighbours(state.computer)))
             for child in state.get_neighbours(state.computer):
                 self.tree[str(state.state) + "@" + str(state.get_heuristic())].append(str(child.state) + "@" + str(child.get_heuristic()))
                 max_value = self._alpha_beta_pruning(child, depth - 1, not maxPlayer, alpha, beta)[0]
@@ -47,7 +49,9 @@ class alphabeta:
             col = None
             curr_state_heurestic = state.get_heuristic()
             self.tree[str(state.state) + "@" + str(curr_state_heurestic)] = []
-            for child in state.get_neighbours(state.computer):
+
+            #print('state and length of childs',state.state, len(state.get_neighbours(state.human)))
+            for child in state.get_neighbours(state.human):
                 self.tree[str(state.state) + "@" + str(state.get_heuristic())].append(str(child.state) + "@" + str(child.get_heuristic()))
                 min_value = self._alpha_beta_pruning(child, depth - 1, not maxPlayer, alpha, beta)[0]
                 #self.tree[str(state.state) + "@" + str(curr_state_heurestic)].append(str(child.state) + "@" + str(min_value))
@@ -72,5 +76,6 @@ class alphabeta:
                 except:
                     continue
 
-        print("shown tree is  : ")
-        tree.show()
+        if showing_tree :
+            print("shown tree is  : ")
+            tree.show()

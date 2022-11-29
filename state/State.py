@@ -440,6 +440,7 @@ class State:
         return four , three , two
 
     def is_terminal(self):
+        #print('iam here')
         temp_state = self.state
         counter = 0
         for i in range(1, 8):
@@ -447,9 +448,11 @@ class State:
             MTELFR = MTELFR << ((i - 1) * 9)
             LastFilledRow = temp_state & MTELFR
             LastFilledRow = LastFilledRow >> ((i - 1) * 9)
-            if LastFilledRow == 7:
+            #print('last filled is ', LastFilledRow)
+            if LastFilledRow == 6:
                 counter += 1
 
+        #print('counter is ', counter)
         return counter == 7
 
     def get_valid_col(self):

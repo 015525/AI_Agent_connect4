@@ -3,7 +3,7 @@ import sys
 from treelib import Tree
 
 from state.State import State
-
+showing_tree = False
 
 class MiniMax:
     dic = {}
@@ -71,8 +71,9 @@ class MiniMax:
                 except:
                     continue
 
-        print("shown tree is  : ")
-        tree.show()
+        if showing_tree:
+            print("shown tree is  : ")
+            tree.show()
 
 
 
